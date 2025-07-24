@@ -28,10 +28,11 @@ logger = logging.getLogger(__name__)
 
 class JapaneseDatasetDownloader:
     """日本語データセットダウンローダー"""
-    
-    def __init__(self, output_dir: str = "dataset/deepseek-jp"):
+
+    def __init__(self, output_dir: str = "dataset/deepseek-jp", use_fallback: bool = False):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.use_fallback = use_fallback
         
         # ダウンロードディレクトリ
         self.raw_dir = self.output_dir / "raw"
@@ -80,8 +81,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download Wikipedia Japanese: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("wikipedia_ja", max_articles // 10)
+            if self.use_fallback:
+                return self._create_sample_dataset("wikipedia_ja", max_articles // 10)
+            raise
     
     def download_cc100_ja(self, max_samples: int = 100000) -> str:
         """CC-100日本語データセットのダウンロード"""
@@ -112,8 +114,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download CC-100 Japanese: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("cc100_ja", max_samples // 10)
+            if self.use_fallback:
+                return self._create_sample_dataset("cc100_ja", max_samples // 10)
+            raise
     
     def download_oscar_ja(self, max_samples: int = 50000) -> str:
         """OSCAR日本語データセットのダウンロード"""
@@ -144,8 +147,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download OSCAR Japanese: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("oscar_ja", max_samples // 10)
+            if self.use_fallback:
+                return self._create_sample_dataset("oscar_ja", max_samples // 10)
+            raise
     
     def download_aozora_bunko(self, max_books: int = 1000) -> str:
         """青空文庫データセットのダウンロード"""
@@ -187,8 +191,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download Aozora Bunko: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("aozora_bunko", max_books)
+            if self.use_fallback:
+                return self._create_sample_dataset("aozora_bunko", max_books)
+            raise
     
     def download_japanese_news(self, max_articles: int = 30000) -> str:
         """日本語ニュースデータセットのダウンロード"""
@@ -219,8 +224,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download Japanese news: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("japanese_news", max_articles // 10)
+            if self.use_fallback:
+                return self._create_sample_dataset("japanese_news", max_articles // 10)
+            raise
     
     def download_technical_docs_ja(self, max_docs: int = 10000) -> str:
         """日本語技術文書データセットのダウンロード"""
@@ -271,8 +277,9 @@ class JapaneseDatasetDownloader:
             
         except Exception as e:
             logger.error(f"Failed to download technical documents: {e}")
-            # フォールバック: サンプルデータを生成
-            return self._create_sample_dataset("technical_docs_ja", max_docs // 10)
+            if self.use_fallback:
+                return self._create_sample_dataset("technical_docs_ja", max_docs // 10)
+            raise
     
     def create_validation_dataset(self, source_files: List[str], validation_ratio: float = 0.05) -> str:
         """学習データから検証データセットを作成"""
@@ -370,10 +377,11 @@ def main():
                        help="ダウンロードするデータセット")
     parser.add_argument("--max-samples", type=int, default=50000, help="各データセットの最大サンプル数")
     parser.add_argument("--create-validation", action="store_true", help="検証データセットを作成")
+    parser.add_argument("--allow-fallback", action="store_true", help="ダウンロード失敗時にサンプルデータを生成")
     
     args = parser.parse_args()
-    
-    downloader = JapaneseDatasetDownloader(args.output_dir)
+
+    downloader = JapaneseDatasetDownloader(args.output_dir, use_fallback=args.allow_fallback)
     downloaded_files = []
     
     print("Japanese Dataset Downloader for DeepSeek R1")
@@ -383,18 +391,24 @@ def main():
     for dataset_name in args.datasets:
         print(f"\n=== Downloading {dataset_name} ===")
         
-        if dataset_name == 'wikipedia':
-            file_path = downloader.download_wikipedia_ja(args.max_samples)
-        elif dataset_name == 'cc100':
-            file_path = downloader.download_cc100_ja(args.max_samples)
-        elif dataset_name == 'oscar':
-            file_path = downloader.download_oscar_ja(args.max_samples)
-        elif dataset_name == 'aozora':
-            file_path = downloader.download_aozora_bunko(args.max_samples // 10)  # 書籍なので少なめ
-        elif dataset_name == 'news':
-            file_path = downloader.download_japanese_news(args.max_samples)
-        elif dataset_name == 'tech':
-            file_path = downloader.download_technical_docs_ja(args.max_samples // 5)
+        try:
+            if dataset_name == 'wikipedia':
+                file_path = downloader.download_wikipedia_ja(args.max_samples)
+            elif dataset_name == 'cc100':
+                file_path = downloader.download_cc100_ja(args.max_samples)
+            elif dataset_name == 'oscar':
+                file_path = downloader.download_oscar_ja(args.max_samples)
+            elif dataset_name == 'aozora':
+                file_path = downloader.download_aozora_bunko(args.max_samples // 10)  # 書籍なので少なめ
+            elif dataset_name == 'news':
+                file_path = downloader.download_japanese_news(args.max_samples)
+            elif dataset_name == 'tech':
+                file_path = downloader.download_technical_docs_ja(args.max_samples // 5)
+            else:
+                file_path = ''
+        except Exception as e:
+            logger.error(f"Download failed for {dataset_name}: {e}")
+            file_path = ''
         
         if file_path:
             downloaded_files.append(file_path)
