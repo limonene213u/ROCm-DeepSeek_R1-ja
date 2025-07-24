@@ -98,6 +98,8 @@ def _generate_sample_wikipedia_data(self, num_samples: int = 1000) -> str:
 
 外部データソースが利用できない場合に備えて、サンプルデータ生成機能を実装している。これにより、ネットワーク接続の問題やAPIの制限があっても、開発・テスト環境でのワークフローを継続できる。生成されるサンプルデータは、実際のWikipediaやCC-100データと同様の構造を持ち、学習パイプラインの検証に使用される。
 
+バージョン更新に伴い、`use_fallback` 引数でこの機能の有無を制御できるようになった。CLIでは `--allow-fallback` オプションとして公開しており、明示的に指定しない限りサンプルデータは生成されない。
+
 ## 検証機能
 
 ```python
@@ -129,6 +131,8 @@ def main():
                        help="Datasets to download")
     parser.add_argument("--create-validation", action="store_true",
                        help="Create validation dataset")
+    parser.add_argument("--allow-fallback", action="store_true",
+                       help="Generate sample data when download fails")
 ```
 
 コマンドライン実行時のパラメータ設定を管理している。ダウンロードするサンプル数、出力ディレクトリ、対象データセット、検証データセット作成の有無などを指定可能である。これにより、異なる実験設定での再現性を確保し、研究目的に応じたデータセット構築を支援している。
