@@ -51,3 +51,4 @@ Thumbs.db
 # プロジェクト固有
 .history/
 *.log
+dataset

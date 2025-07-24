@@ -4,6 +4,9 @@
 DeepSeek R1日本語特化学習用データセット取得スクリプト
 
 Author: limonene213u
+
+使用方法：
+python dl_dataset.py --max-samples 10000 --output-dir ../dataset/deepseek-jp
 """
 
 import os
@@ -411,8 +414,12 @@ def main():
     print(f"Output directory: {args.output_dir}")
     
     for file_path in downloaded_files:
-        file_size = Path(file_path).stat().st_size / (1024 * 1024)  # MB
-        print(f"  - {Path(file_path).name}: {file_size:.1f} MB")
+        file_obj = Path(file_path)
+        if file_obj.exists():
+            file_size = file_obj.stat().st_size / (1024 * 1024)  # MB
+            print(f"  - {file_obj.name}: {file_size:.1f} MB")
+        else:
+            print(f"  - {file_obj.name}: File not found")
     
     print("\nReady for DeepSeek R1 Japanese training!")
 
