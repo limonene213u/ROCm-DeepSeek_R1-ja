@@ -52,3 +52,5 @@ Thumbs.db
 .history/
 *.log
 dataset
+
+deepseek-ja-output
