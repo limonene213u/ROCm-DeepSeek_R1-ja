@@ -55,6 +55,32 @@ def test_variant_generation():
 
 日本語テキストの言語的バリエーション生成機能を検証するテストである。「今日は良い天気です」という基本的な日本語文に対して、元のテキストが結果に含まれていること、返値がリスト型であること、最低1つのバリエーションが生成されることを確認している。このテストにより、日本語の自然な表現バリエーションが適切に生成され、学習データの多様性確保が機能していることが保証される。
 
+### test_dl_dataset.py
+
+JapaneseDatasetDownloader のフォールバック機構を検証するテストモジュールである。ネットワーク障害を模擬するため `load_dataset` をモンキーパッチし、フォールバックを許可する場合と許可しない場合で挙動が変わることを確認する。
+
+#### test_download_failure_no_fallback テスト
+
+```python
+def test_download_failure_no_fallback(monkeypatch, tmp_path):
+    monkeypatch.setattr("Python.dl_dataset.load_dataset", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("fail")))
+    downloader = JapaneseDatasetDownloader(output_dir=tmp_path, use_fallback=False)
+    with pytest.raises(RuntimeError):
+        downloader.download_wikipedia_ja(5)
+```
+
+#### test_download_failure_with_fallback テスト
+
+```python
+def test_download_failure_with_fallback(monkeypatch, tmp_path):
+    monkeypatch.setattr("Python.dl_dataset.load_dataset", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("fail")))
+    downloader = JapaneseDatasetDownloader(output_dir=tmp_path, use_fallback=True)
+    path = downloader.download_wikipedia_ja(5)
+    assert Path(path).exists()
+```
+
+この二つのテストにより、フォールバックオプションが明示的に有効化された場合のみサンプルデータが生成されることを保証する。
+
 ## テスト実行環境
 
 テストスイートはpytestフレームワークを使用して実行され、以下のコマンドで全テストを実行可能である：

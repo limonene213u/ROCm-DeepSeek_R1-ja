@@ -144,3 +144,17 @@ deepseek_ja_adapter.pyは1179行の大規模なスクリプトであり、以下
 - ✅ `Description_test_codes.md` (テストスイート全体)
 
 これにより、コードベース全体の透明性と保守性が確保され、研究の再現性と継続性を支える基盤が完全に確立された。
+
+## 2025年7月26日 - フォールバック制御機能追加
+
+### 実行内容
+- dl_dataset.py に `use_fallback` オプションを追加
+- CLI 引数 `--allow-fallback` を実装
+- 失敗時のサンプルデータ生成可否を選択可能にした
+- 新規テスト `test_dl_dataset.py` を作成
+
+### 変更ファイル
+- `Python/dl_dataset.py`
+- `Docs/Descriptions/Description_codes-dl_dataset.md`
+- `Docs/Descriptions/Description_test_codes.md`
+- `tests/test_dl_dataset.py` (新規追加)
