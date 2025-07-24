@@ -1,0 +1,14 @@
+# DeepSeek R1 BPE解析ツール（軽量版）用の依存関係
+# 可視化ライブラリなしの最小構成
+
+# Core dependencies for tokenizer analysis
+torch>=2.0.0
+transformers>=4.30.0
+sentencepiece>=0.1.99
+
+# Data processing and analysis
+numpy>=1.21.0
+pandas>=1.5.0
+
+# Japanese text processing
+unicodedata2>=15.0.0

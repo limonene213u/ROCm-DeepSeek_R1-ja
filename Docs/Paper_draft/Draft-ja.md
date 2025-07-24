@@ -1,7 +1,7 @@
 # DeepSeek R1日本語言語適応：言語学的データ拡張とMI300X最適化
 
-**著者：** りもこ  
-**所属：** 理数塾暁、Akatsuki Enterprise Technology Solutions  
+**著者：** 伊藤あきら  
+**所属：** AETS(Akatsuki Enterprise Technology Solutions)  
 **日付：** 2025年7月
 
 ## 概要

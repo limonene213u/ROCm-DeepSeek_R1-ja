@@ -39,122 +39,6 @@ class ExecutionMode(Enum):
     DEVELOPMENT = "development"  # 開発・テスト
     TRIAL = "trial"             # 試行・デモ
 
-class SupportedModel(Enum):
-    """サポートされているDeepSeek R1 Distillモデル"""
-    LLAMA_8B = "deepseek-ai/DeepSeek-R1-Distill-Llama-8B"
-    QWEN_14B = "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
-    QWEN_32B = "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
-    QWEN_1_5B = "deepseek-ai/deepseek-r1-distill-qwen-1.5b"  # 後方互換性
-
-@dataclass
-class ModelStrategy:
-    """モデル別の最適な学習戦略"""
-    model_name: str
-    recommended_batch_size: int
-    recommended_gradient_accumulation: int
-    recommended_learning_rate: float
-    recommended_lora_r: int
-    recommended_lora_alpha: int
-    memory_requirements_gb: float
-    vram_optimized: bool = False
-    
-    @property
-    def display_name(self) -> str:
-        """表示用モデル名"""
-        if "Llama-8B" in self.model_name:
-            return "DeepSeek-R1-Distill-Llama-8B (推論重視・軽量)"
-        elif "Qwen-14B" in self.model_name:
-            return "DeepSeek-R1-Distill-Qwen-14B (バランス型)"
-        elif "Qwen-32B" in self.model_name:
-            return "DeepSeek-R1-Distill-Qwen-32B (高性能・大容量)"
-        elif "1.5b" in self.model_name:
-            return "DeepSeek-R1-Distill-Qwen-1.5B (テスト用)"
-        else:
-            return self.model_name
-
-class ModelRegistry:
-    """サポートされているモデルの設定レジストリ"""
-    
-    _strategies = {
-        SupportedModel.LLAMA_8B.value: ModelStrategy(
-            model_name=SupportedModel.LLAMA_8B.value,
-            recommended_batch_size=4,
-            recommended_gradient_accumulation=4,
-            recommended_learning_rate=1e-4,
-            recommended_lora_r=16,
-            recommended_lora_alpha=32,
-            memory_requirements_gb=16.0,
-            vram_optimized=True
-        ),
-        SupportedModel.QWEN_14B.value: ModelStrategy(
-            model_name=SupportedModel.QWEN_14B.value,
-            recommended_batch_size=2,
-            recommended_gradient_accumulation=8,
-            recommended_learning_rate=8e-5,
-            recommended_lora_r=32,
-            recommended_lora_alpha=64,
-            memory_requirements_gb=28.0,
-            vram_optimized=False
-        ),
-        SupportedModel.QWEN_32B.value: ModelStrategy(
-            model_name=SupportedModel.QWEN_32B.value,
-            recommended_batch_size=1,
-            recommended_gradient_accumulation=16,
-            recommended_learning_rate=5e-5,
-            recommended_lora_r=64,
-            recommended_lora_alpha=128,
-            memory_requirements_gb=64.0,
-            vram_optimized=False
-        ),
-        SupportedModel.QWEN_1_5B.value: ModelStrategy(
-            model_name=SupportedModel.QWEN_1_5B.value,
-            recommended_batch_size=8,
-            recommended_gradient_accumulation=2,
-            recommended_learning_rate=2e-4,
-            recommended_lora_r=8,
-            recommended_lora_alpha=16,
-            memory_requirements_gb=4.0,
-            vram_optimized=True
-        )
-    }
-    
-    @classmethod
-    def get_strategy(cls, model_name: str) -> ModelStrategy:
-        """モデル名から最適な戦略を取得"""
-        return cls._strategies.get(model_name, cls._strategies[SupportedModel.QWEN_1_5B.value])
-    
-    @classmethod
-    def list_models(cls) -> List[ModelStrategy]:
-        """サポートされているモデル一覧を取得"""
-        return list(cls._strategies.values())
-    
-    @classmethod
-    def interactive_model_selection(cls) -> ModelStrategy:
-        """インタラクティブなモデル選択"""
-        print("\n=== DeepSeek R1 Distillモデル選択 ===")
-        print("学習可能なモデル:")
-        
-        models = cls.list_models()
-        for i, strategy in enumerate(models, 1):
-            print(f"{i}. {strategy.display_name}")
-            print(f"   メモリ要件: {strategy.memory_requirements_gb}GB")
-            print(f"   推奨学習率: {strategy.recommended_learning_rate}")
-            print(f"   バッチサイズ: {strategy.recommended_batch_size}")
-            print()
-        
-        while True:
-            try:
-                choice = input(f"モデルを選択してください (1-{len(models)}): ")
-                index = int(choice) - 1
-                if 0 <= index < len(models):
-                    selected = models[index]
-                    print(f"\n選択されたモデル: {selected.display_name}")
-                    return selected
-                else:
-                    print("無効な選択です。")
-            except ValueError:
-                print("数字を入力してください。")
-
 @dataclass
 class JapaneseDataConfig:
     """日本語データセット設定"""
@@ -753,17 +637,8 @@ class JapaneseBPEStrategy:
 class DeepSeekJapaneseTrainer:
     """DeepSeek日本語学習クラス - MI300X最適化"""
     
-    def __init__(self, config: JapaneseDataConfig, model_strategy: Optional[ModelStrategy] = None, output_dir: str = "./deepseek-ja-output"):
-        """
-        DeepSeek日本語学習トレーナー
-        
-        Args:
-            config: データセット設定
-            model_strategy: モデル戦略（指定しない場合はデフォルト）
-            output_dir: 出力ディレクトリ
-        """
+    def __init__(self, config: JapaneseDataConfig, output_dir: str = "./deepseek-ja-output"):
         self.config = config
-        self.model_strategy = model_strategy or ModelRegistry.get_strategy(SupportedModel.QWEN_1_5B.value)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         
@@ -773,14 +648,6 @@ class DeepSeekJapaneseTrainer:
         
         # MI300X環境チェック
         self._check_mi300x_environment()
-        
-        # 戦略に基づいたパフォーマンス設定
-        self.batch_size = self.model_strategy.recommended_batch_size
-        self.gradient_accumulation_steps = self.model_strategy.recommended_gradient_accumulation
-        
-        logger.info(f"Trainer initialized for {self.model_strategy.display_name}")
-        logger.info(f"Batch size: {self.batch_size}, Gradient accumulation: {self.gradient_accumulation_steps}")
-        logger.info(f"Memory requirements: {self.model_strategy.memory_requirements_gb}GB")
     
     def _check_mi300x_environment(self):
         """MI300X環境の確認"""
@@ -983,21 +850,15 @@ class DeepSeekJapaneseTrainer:
             # LoRA対象モジュールの検出
             target_modules = self._detect_target_modules(model)
             
-            # モデル戦略に基づくLoRA設定
             lora_config = LoraConfig(
                 task_type=TaskType.CAUSAL_LM,
                 inference_mode=False,
-                r=self.model_strategy.recommended_lora_r,
-                lora_alpha=self.model_strategy.recommended_lora_alpha,
+                r=16,  # LoRAランク
+                lora_alpha=32,
                 lora_dropout=0.1,
                 target_modules=target_modules,
                 bias="none"
             )
-            
-            logger.info(f"LoRA configuration for {self.model_strategy.display_name}:")
-            logger.info(f"  Rank: {self.model_strategy.recommended_lora_r}")
-            logger.info(f"  Alpha: {self.model_strategy.recommended_lora_alpha}")
-            logger.info(f"  Target modules: {target_modules}")
             
             model = get_peft_model(model, lora_config)
             
@@ -1022,26 +883,13 @@ class DeepSeekJapaneseTrainer:
             
             return model, tokenizer, False
     
-    def train_with_mi300x_optimization(self, model, tokenizer, datasets, epochs=3, learning_rate=None, output_name="deepseek_ja", is_continue_training=False):
-        """MI300X最適化された学習（モデル戦略対応）"""
-        
-        # 学習率の決定（戦略優先）
-        if learning_rate is None:
-            learning_rate = self.model_strategy.recommended_learning_rate
-            logger.info(f"Using model-optimized learning rate: {learning_rate}")
-        
+    def train_with_mi300x_optimization(self, model, tokenizer, datasets, epochs=3, learning_rate=2e-4, output_name="deepseek_ja", is_continue_training=False):
+        """MI300X最適化された学習"""
         logger.info("Starting MI300X-optimized training...")
-        logger.info(f"Model strategy: {self.model_strategy.display_name}")
-        logger.info(f"Batch size: {self.batch_size}, Gradient accumulation: {self.gradient_accumulation_steps}")
         
         # トークナイズ関数
         def tokenize_function(examples):
-            # モデルサイズに応じたシーケンス長調整
-            if self.model_strategy.memory_requirements_gb > 32:
-                max_length = 1024 if self.is_mi300x else 512  # 大型モデルは短めに
-            else:
-                max_length = 2048 if self.is_mi300x else 512  # 小型モデルは長めでも可能
-                
+            max_length = 2048 if self.is_mi300x else 512  # MI300Xなら長いシーケンス
             return tokenizer(
                 examples["text"],
                 truncation=True,
@@ -1050,29 +898,29 @@ class DeepSeekJapaneseTrainer:
                 return_special_tokens_mask=True,
             )
         
-        # データセットのトークナイズ（シリアライゼーション問題回避のため単一プロセス）
+        # データセットのトークナイズ
         tokenized_train = datasets["train"].map(
             tokenize_function, 
             batched=True,
-            num_proc=1,  # シリアライゼーション問題を回避
+            num_proc=4,  # 並列処理でトークナイズを高速化
             remove_columns=datasets["train"].column_names
         )
         
         tokenized_val = datasets["validation"].map(
             tokenize_function,
             batched=True,
-            num_proc=1,
+            num_proc=4,
             remove_columns=datasets["validation"].column_names
         )
         
-        # モデル戦略に基づく学習パラメータ
+        # MI300X最適化学習パラメータ
         training_args = TrainingArguments(
             output_dir=str(self.output_dir / output_name),
             overwrite_output_dir=True,
             num_train_epochs=epochs,
-            per_device_train_batch_size=self.batch_size,
-            per_device_eval_batch_size=self.batch_size,
-            gradient_accumulation_steps=self.gradient_accumulation_steps,
+            per_device_train_batch_size=8 if self.is_mi300x else 2,
+            per_device_eval_batch_size=8 if self.is_mi300x else 2,
+            gradient_accumulation_steps=4 if self.is_mi300x else 8,
             gradient_checkpointing=True,
             
             # 学習率・最適化
@@ -1198,94 +1046,25 @@ def main():
     
     import argparse
     parser = argparse.ArgumentParser(description="DeepSeek日本語特化学習")
-    parser.add_argument("--model-name", help="使用するモデル名（指定しない場合は対話選択）")
-    parser.add_argument("--model-type", 
-                        choices=["llama-8b", "qwen-14b", "qwen-32b", "qwen-1.5b"], 
-                        help="モデルタイプによる選択")
+    parser.add_argument("--model-name", default="deepseek-ai/deepseek-r1-distill-qwen-1.5b", help="使用するモデル名")
     parser.add_argument("--continue-from", help="継続学習用のLoRAモデルパス")
     parser.add_argument("--persona-file", help="ペルソナデータファイル")
     parser.add_argument("--epochs", type=int, default=3, help="学習エポック数")
-    parser.add_argument("--learning-rate", type=float, help="学習率（自動最適化される場合あり）")
+    parser.add_argument("--learning-rate", type=float, default=2e-4, help="学習率")
     parser.add_argument("--output-name", help="出力モデル名")
     parser.add_argument("--mode", choices=["production", "development", "trial"], 
                         default="development", help="実行モード")
     parser.add_argument("--auto", action="store_true", help="自動モード")
-    parser.add_argument("--show-models", action="store_true", help="サポートされているモデル一覧を表示")
-    parser.add_argument("--dry-run", action="store_true", help="設定確認のみ（実際の学習は行わない）")
     args = parser.parse_args()
-    
-    # モデル一覧表示
-    if args.show_models:
-        print("サポートされているDeepSeek R1 Distillモデル:")
-        for strategy in ModelRegistry.list_models():
-            print(f"- {strategy.display_name}")
-            print(f"  モデル名: {strategy.model_name}")
-            print(f"  メモリ要件: {strategy.memory_requirements_gb}GB")
-            print(f"  推奨設定: LR={strategy.recommended_learning_rate}, BS={strategy.recommended_batch_size}")
-            print()
-        return
     
     # 実行モード設定
     execution_mode = ExecutionMode(args.mode)
     
-    # モデル選択ロジック
-    model_strategy = None
-    model_name = None
-    
-    if args.model_type:
-        # モデルタイプから選択
-        type_to_model = {
-            "llama-8b": SupportedModel.LLAMA_8B.value,
-            "qwen-14b": SupportedModel.QWEN_14B.value,
-            "qwen-32b": SupportedModel.QWEN_32B.value,
-            "qwen-1.5b": SupportedModel.QWEN_1_5B.value,
-        }
-        model_name = type_to_model[args.model_type]
-        model_strategy = ModelRegistry.get_strategy(model_name)
-        print(f"選択されたモデル: {model_strategy.display_name}")
-    elif args.model_name:
-        # 直接指定
-        model_name = args.model_name
-        model_strategy = ModelRegistry.get_strategy(model_name)
-    elif args.auto:
-        # 自動モードではデフォルト（Qwen-1.5B）
-        model_name = SupportedModel.QWEN_1_5B.value
-        model_strategy = ModelRegistry.get_strategy(model_name)
-        print(f"自動モード: {model_strategy.display_name}を使用")
-    else:
-        # インタラクティブ選択
-        model_strategy = ModelRegistry.interactive_model_selection()
-        model_name = model_strategy.model_name
-    
-    print(f"\nモデル設定:")
-    print(f"  モデル: {model_strategy.display_name}")
-    print(f"  メモリ要件: {model_strategy.memory_requirements_gb}GB")
-    print(f"  推奨バッチサイズ: {model_strategy.recommended_batch_size}")
-    print(f"  推奨学習率: {model_strategy.recommended_learning_rate}")
-    print()
-    
-    # ドライランモードの場合はここで終了
-    if args.dry_run:
-        print("=== ドライランモード: 設定確認のみ ===")
-        print(f"学習設定プレビュー:")
-        print(f"  実行モード: {execution_mode.value}")
-        print(f"  選択モデル: {model_strategy.display_name}")
-        print(f"  モデルパス: {model_name}")
-        print(f"  バッチサイズ: {model_strategy.recommended_batch_size}")
-        print(f"  勾配累積: {model_strategy.recommended_gradient_accumulation}")
-        print(f"  推奨学習率: {model_strategy.recommended_learning_rate}")
-        print(f"  LoRA rank: {model_strategy.recommended_lora_r}")
-        print(f"  LoRA alpha: {model_strategy.recommended_lora_alpha}")
-        print(f"  メモリ要件: {model_strategy.memory_requirements_gb}GB")
-        print(f"  継続学習: {'あり' if args.continue_from else 'なし'}")
-        print("\n実際の学習を行う場合は --dry-run オプションを外してください。")
-        return
-    
     # 設定
     config = JapaneseDataConfig(execution_mode=execution_mode)
     
-    # 学習実行（モデル戦略を適用）
-    trainer = DeepSeekJapaneseTrainer(config, model_strategy)
+    # 学習実行
+    trainer = DeepSeekJapaneseTrainer(config)
     
     # ペルソナデータ読み込み
     persona_data = load_persona_data(args.persona_file)
@@ -1303,29 +1082,21 @@ def main():
     
     # モデル・トークナイザー設定
     model, tokenizer, is_continue = trainer.setup_model_and_tokenizer(
-        model_name=model_name,
+        model_name=args.model_name,
         continue_from=args.continue_from
     )
     
-    # 学習パラメータ決定（モデル戦略適用）
+    # 学習パラメータ決定
     if args.auto:
         epochs = args.epochs
-        learning_rate = args.learning_rate if args.learning_rate else model_strategy.recommended_learning_rate
-        output_name = args.output_name or f"deepseek_ja_{'continue' if is_continue else 'new'}_{model_strategy.model_name.split('/')[-1]}"
+        learning_rate = args.learning_rate
+        output_name = args.output_name or f"deepseek_ja_{'continue' if is_continue else 'new'}"
     else:
         # インタラクティブ設定
         print(f"\nTraining Configuration:")
-        print(f"Model strategy recommendations:")
-        print(f"  Learning rate: {model_strategy.recommended_learning_rate}")
-        print(f"  Batch size: {model_strategy.recommended_batch_size}")
-        print(f"  LoRA rank: {model_strategy.recommended_lora_r}")
-        print()
-        
         epochs = int(input(f"Epochs (default: {args.epochs}): ") or str(args.epochs))
-        default_lr = args.learning_rate if args.learning_rate else model_strategy.recommended_learning_rate
-        learning_rate = float(input(f"Learning rate (default: {default_lr}): ") or str(default_lr))
-        
-        default_name = f"deepseek_ja_{'continue' if is_continue else 'new'}_{persona_data.get('character_name', 'model') if persona_data else 'model'}_{model_strategy.model_name.split('/')[-1]}"
+        learning_rate = float(input(f"Learning rate (default: {args.learning_rate}): ") or str(args.learning_rate))
+        default_name = f"deepseek_ja_{'continue' if is_continue else 'new'}_{persona_data.get('character_name', 'model') if persona_data else 'model'}"
         output_name = input(f"Output name (default: {default_name}): ") or default_name
     
     # 学習実行

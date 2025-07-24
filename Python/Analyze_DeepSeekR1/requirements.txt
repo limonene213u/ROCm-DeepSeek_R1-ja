@@ -1,0 +1,21 @@
+# DeepSeek R1 BPE解析ツール用の依存関係
+# Core dependencies for tokenizer analysis
+torch>=2.0.0
+transformers>=4.30.0
+sentencepiece>=0.1.99
+
+# Data processing and analysis
+numpy>=1.21.0
+pandas>=1.5.0
+
+# Optional: Visualization (可視化機能用)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+scipy>=1.9.0
+
+# Japanese text processing
+unicodedata2>=15.0.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-cov>=4.0.0

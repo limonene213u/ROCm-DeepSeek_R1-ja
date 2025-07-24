@@ -1,0 +1,64 @@
+{
+  "model_name": "deepseek-ai/deepseek-r1-distill-qwen-1.5b",
+  "vocab_size": 151665,
+  "japanese_analysis": {
+    "total_count": 0,
+    "ratio": 0.0,
+    "by_type": {
+      "hiragana": {
+        "count": 0,
+        "examples": []
+      },
+      "katakana": {
+        "count": 0,
+        "examples": []
+      },
+      "kanji": {
+        "count": 0,
+        "examples": []
+      },
+      "mixed": {
+        "count": 0,
+        "examples": []
+      }
+    }
+  },
+  "subword_efficiency": {
+    "avg_compression_ratio": 0.7410714285714286,
+    "compression_ratio_std": 0.1462681323940275,
+    "avg_tokens_per_sentence": 10.375,
+    "avg_chars_per_token": 1.3493975903614457
+  },
+  "common_word_coverage": {
+    "こんにちは": false,
+    "ありがとう": false,
+    "すみません": false,
+    "はじめまして": false,
+    "学習": false,
+    "研究": false,
+    "開発": false,
+    "技術": false,
+    "科学": false,
+    "大学": false,
+    "会社": false,
+    "仕事": false,
+    "問題": false,
+    "解決": false,
+    "方法": false,
+    "結果": false,
+    "データ": false,
+    "情報": false,
+    "システム": false,
+    "プログラム": false
+  },
+  "token_length_stats": {
+    "mean_length": 6.43609696905748,
+    "median_length": 6.0,
+    "std_length": 3.9416978383478956,
+    "min_length": 1.0,
+    "max_length": 128.0,
+    "q25_length": 4.0,
+    "q75_length": 8.0
+  },
+  "byte_tokens_count": 0
+}

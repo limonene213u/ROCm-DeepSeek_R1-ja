@@ -1,0 +1,2 @@
+model_name,vocab_size,japanese_token_count,japanese_ratio,hiragana_count,katakana_count,kanji_count,mixed_count,byte_token_count,avg_compression_ratio,compression_ratio_std,avg_tokens_per_sentence,avg_chars_per_token,common_word_coverage_rate,mean_token_length,median_token_length
+deepseek-r1-distill-qwen-1.5b,151665,0,0.0,0,0,0,0,0,0.7410714285714286,0.1462681323940275,10.375,1.3493975903614457,0.0,6.43609696905748,0
