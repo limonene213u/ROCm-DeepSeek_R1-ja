@@ -1,0 +1,10 @@
+{
+  "conversation_patterns": [
+    "こんにちは、{subject}について教えてください。",
+    "{topic}について詳しく説明していただけませんか？"
+  ],
+  "variables": {
+    "subjects": ["機械学習", "自然言語処理", "プログラミング"],
+    "topics": ["AI技術", "Python開発", "ディープラーニング"]
+  }
+}
