@@ -10,6 +10,7 @@ Target: AMD MI300X + ROCm 6.1環境
 import os
 import json
 import random
+import re
 from pathlib import Path
 from typing import List, Dict, Optional, Union, Tuple
 import sentencepiece as spm
@@ -45,6 +46,7 @@ class JapaneseDataConfig:
     train_files: List[str] = None
     validation_files: List[str] = None
     execution_mode: ExecutionMode = ExecutionMode.DEVELOPMENT
+    require_all_files: bool = True
     
     def __post_init__(self):
         if self.train_files is None:
@@ -78,11 +80,17 @@ class DatasetManager:
         """データセットの存在確認と必要に応じた生成"""
         
         # 実際のデータセットファイルの確認
-        real_files_exist = any(
-            (self.base_dir / filename).exists() 
-            for filename in self.config.train_files
-        )
-        
+        if self.config.require_all_files:
+            real_files_exist = all(
+                (self.base_dir / filename).exists()
+                for filename in self.config.train_files
+            )
+        else:
+            real_files_exist = any(
+                (self.base_dir / filename).exists()
+                for filename in self.config.train_files
+            )
+
         if real_files_exist:
             logger.info("Real dataset files found. Using existing data.")
             return True
