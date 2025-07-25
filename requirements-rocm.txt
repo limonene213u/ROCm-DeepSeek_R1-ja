@@ -1,0 +1,28 @@
+# ROCm環境用の追加依存関係
+# AMD GPU + ROCm 6.1 環境での最適化パッケージ
+
+# ROCm-optimized PyTorch (標準PyTorchの代わりに使用する場合)
+# torch==2.0.1+rocm5.6 --index-url https://download.pytorch.org/whl/rocm5.6
+
+# Memory optimization for large models
+bitsandbytes>=0.41.0
+
+# Efficient attention mechanisms
+flash-attn>=2.0.0
+
+# Model optimization
+optimum>=1.12.0
+
+# Distributed training support
+deepspeed>=0.10.0
+
+# Memory profiling and monitoring
+psutil>=5.9.0
+gpustat>=1.1.0
+
+# Performance monitoring
+wandb>=0.15.0
+
+# Note: ROCm環境では標準のPyTorchではなく、ROCm専用ビルドの使用を推奨
+# インストール例:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
