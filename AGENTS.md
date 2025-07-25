@@ -54,3 +54,6 @@
 
 - CUDAを一切使用しません。使用できるのはROCMのみです。ただし、CUDA互換レイヤーの使用は許容するため、PyTorchのCUDA APIは使用可能です。
 - MetalやDirectMLなど、ROCm以外のGPUアクセラレーションAPIを暫定的に使用する場合は、必ずAGENTS.mdの遵守事項に従い、Docs/Descriptions/Description_code_changes_by_agents.MDに変更内容を記載すること。
+
+# memoディレクトリについて
+ローカルのみに作成・保存します。GitHub等にはアップロードしません。
