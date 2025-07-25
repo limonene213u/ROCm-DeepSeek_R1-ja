@@ -1,5 +1,9 @@
 # DeepSeek R1 Japanese Language Adaptation: Comprehensive Research Foundation
 
+**Author** Akira Ito  
+**Affiliation** AETS(Akatsuki Enterprise Technology Solutions)  
+**Date** July 2025
+
 ## Executive Summary
 
 This comprehensive research provides the technical foundation for academic work on "DeepSeek R1 Japanese Language Adaptation with Linguistic-aware Data Augmentation and MI300X Optimization." The analysis reveals significant opportunities for Japanese language specialization of the recently released DeepSeek R1 model, leveraging advanced parameter-efficient adaptation techniques and hardware optimization strategies specific to AMD's MI300X accelerator architecture.
