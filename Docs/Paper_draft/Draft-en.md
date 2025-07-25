@@ -211,8 +211,8 @@ The implemented scientific framework demonstrates significant performance improv
 |----------------|--------------|-------------------|----------------|---------|
 | Quick Optimization | deepseek-r1-distill-qwen-1.5b | **10.47x** | ~10 min | Verified |
 | Analysis System | DeepSeek-R1-Distill-Qwen-32B | **7.60x** | ~15 min | Verified |
-| Full Pipeline | - | - | ~60 min | 🔄 In Progress |
-| Benchmark Mode | - | - | ~30 min | 🔄 In Progress |
+| Full Pipeline | - | - | ~60 min | In Progress |
+| Benchmark Mode | - | - | ~30 min | In Progress |
 
 **System Optimization Results:**
 ```
