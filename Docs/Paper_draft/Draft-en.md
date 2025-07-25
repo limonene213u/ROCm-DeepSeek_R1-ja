@@ -209,8 +209,8 @@ The implemented scientific framework demonstrates significant performance improv
 
 | Execution Mode | Target Model | Speed Improvement | Execution Time | Status |
 |----------------|--------------|-------------------|----------------|---------|
-| Quick Optimization | deepseek-r1-distill-qwen-1.5b | **10.47x** | ~10 min | ✅ Verified |
-| Analysis System | DeepSeek-R1-Distill-Qwen-32B | **7.60x** | ~15 min | ✅ Verified |
+| Quick Optimization | deepseek-r1-distill-qwen-1.5b | **10.47x** | ~10 min | Verified |
+| Analysis System | DeepSeek-R1-Distill-Qwen-32B | **7.60x** | ~15 min | Verified |
 | Full Pipeline | - | - | ~60 min | 🔄 In Progress |
 | Benchmark Mode | - | - | ~30 min | 🔄 In Progress |
 
@@ -224,18 +224,18 @@ Parallel Processing: 16-thread optimization
 
 #### 5.2.2 Technical Validation
 
-**✅ Framework Robustness**: Dependency fallback mechanisms ensure operation across varying environments
-**✅ Scalability**: Modular architecture supports progressive enhancement
-**✅ Hardware Efficiency**: MI300X-specific optimizations achieve maximum resource utilization
-**✅ Error Handling**: Graceful degradation with comprehensive logging
+**Framework Robustness**: Dependency fallback mechanisms ensure operation across varying environments
+**Scalability**: Modular architecture supports progressive enhancement
+**Hardware Efficiency**: MI300X-specific optimizations achieve maximum resource utilization
+**Error Handling**: Graceful degradation with comprehensive logging
 
 **Sample Operation Results:**
 ```bash
 $ python Python/launch_scientific_framework.py --mode quick --model 4
-🚀 Quick optimization initiated: deepseek-r1-distill-qwen-1.5b
-📊 System Status: MI300X optimization active
-⚡ Vaporetto integration: 10.47x speed improvement confirmed
-✅ Quick optimization completed successfully!
+Quick optimization initiated: deepseek-r1-distill-qwen-1.5b
+System Status: MI300X optimization active
+Vaporetto integration: 10.47x speed improvement confirmed
+Quick optimization completed successfully!
 ```
 
 #### 5.2.3 Component Performance Analysis
