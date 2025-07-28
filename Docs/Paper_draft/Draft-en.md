@@ -1,5 +1,9 @@
 # DeepSeek R1 Japanese Language Adaptation: Comprehensive Implementation and Validation Framework
 
+**Author** Akira Ito  
+**Affiliation** AETS(Akatsuki Enterprise Technology Solutions)  
+**Date** July 2025
+
 ## Executive Summary
 
 This research presents the **complete implementation and validation** of a comprehensive DeepSeek R1 Japanese language adaptation system, utilizing linguistic-aware data augmentation techniques and AMD MI300X hardware optimization. The study successfully bridges the gap from theoretical proposal to **fully operational research infrastructure**, providing **reproducible implementation** of all major components including validation frameworks (R-1 through R-8), automated execution systems, and comprehensive benchmarking capabilities.
