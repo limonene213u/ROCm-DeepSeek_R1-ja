@@ -1,0 +1,36 @@
+{
+  "customInstructions": [
+    {
+      "title": "DeepSeek R1 Japanese Adaptation Project Guidelines",
+      "content": "This project implements academic research on DeepSeek R1 Japanese language adaptation with linguistic-aware data augmentation and MI300X optimization. When working on this codebase, prioritize academic integrity, reproducibility, and transparent measurement of claimed performance improvements."
+    },
+    {
+      "title": "Critical Paper Claims Validation",
+      "content": "Implement and validate these paper claims with empirical evidence:\n- R-1: MLA KV cache '5-13% reduction' vs standard attention\n- R-2: Swallow '78% inference efficiency' improvement\n- R-3: Rakuten AI 2.0 '4x inference efficiency'\n- R-4: hipBLASLt '~10% performance improvement'\n- R-5: LoRA '200x fewer parameters' vs full fine-tuning\n- R-6: LoRA '2x VRAM reduction'\n- R-7: Quick Optimization '10.47x speedup'\n- R-8: Analysis System '7.60x speedup'\nAll measurements must include baseline comparisons and statistical confidence intervals."
+    },
+    {
+      "title": "Implementation Standards",
+      "content": "Follow these coding standards:\n- Add detailed TODO comments for unimplemented features referencing Opinion.md findings\n- Include type hints for all function parameters and return values\n- Implement proper error handling with informative logging\n- Support both ROCm (MI300X) and CUDA environments with conditional logic\n- Include multiple measurement runs with warmup periods for stable benchmarking\n- Record detailed measurement conditions for reproducibility"
+    },
+    {
+      "title": "Measurement Precision Requirements",
+      "content": "For benchmark implementations:\n- Use torch.cuda.synchronize() before timing measurements on GPU\n- Implement memory profiling with torch.cuda.memory_allocated() tracking\n- Calculate throughput as (total_tokens_processed / elapsed_time_seconds)\n- Include confidence intervals using statistical analysis (R scripts)\n- Record hardware specifications, software versions, and environment variables\n- Validate against paper claims with clear PASS/FAIL determination"
+    },
+    {
+      "title": "Academic Integrity Guidelines",
+      "content": "Maintain academic standards:\n- Never fabricate measurement data or claim unverified performance\n- Clearly mark theoretical estimates vs empirical measurements\n- Include limitations and assumptions in all benchmark results\n- Provide reproducible scripts for all claimed performance improvements\n- Document measurement methodologies thoroughly\n- Reference Opinion.md R-1 through R-8 validation requirements"
+    },
+    {
+      "title": "File-Specific Instructions",
+      "content": "mla_kv_cache_benchmark.py: Implement actual KV cache size measurement, not just peak memory difference. Include baseline standard attention comparison.\n\nlora_efficiency_benchmark.py: Add full fine-tuning baseline comparison to validate '200x parameters, 2x memory' claims.\n\npaper_validation_suite.py: Implement missing R-3, R-4, R-7, R-8 validation methods with subprocess coordination.\n\nDraft-en.md: Add empirical validation for all quantitative claims with TODO comments marking unverified assertions."
+    },
+    {
+      "title": "ROCm/MI300X Optimization",
+      "content": "For AMD MI300X optimization:\n- Use hipBLASLt for optimized GEMM operations\n- Configure environment variables: HIP_FORCE_DEV_KERNARG=1, TORCH_BLAS_PREFER_HIPBLASLT=1\n- Leverage 192GB HBM3 memory with efficient allocation strategies\n- Implement 11-parameter auto-configuration as mentioned in research plan\n- Use mixed precision (FP8, BF16) for memory efficiency\n- Profile Infinity Cache utilization for attention-heavy workloads"
+    },
+    {
+      "title": "Japanese Language Processing",
+      "content": "For Japanese-specific implementations:\n- Use GiNZA+SudachiPy for morphological analysis over MeCab when accuracy is critical\n- Implement proper character normalization for hiragana/katakana/kanji\n- Handle Japanese dependency structure (係り受け) in data augmentation\n- Support Japanese-specific evaluation metrics (JGLUE, JSQuAD)\n- Account for 3x tokenization overhead vs English text\n- Validate LoRA effectiveness specifically for Japanese linguistic features"
+    }
+  ]
+}

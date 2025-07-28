@@ -1,5 +1,8 @@
 # AGENTS.md
 
+# 手順関連は研究手順.MDに記載
+# TODOタスク関係とチェックはTODO.MDで
+
 ## Fact_check_pending.md の運用ルール
 
 - CopilotやCodexが仮定で出力した記述・数値を手動/自動でリストアップ
