@@ -1,15 +1,16 @@
-# R-2 Swallow推論効率測定タスク - 実装完了報告
+# R-2 Swallow推論効率測定タスク - 実装完了報告（更新版）
 
 ## 🎯 実装目標達成状況
 
 ### ✅ 完了項目
 
-1. **データセット準備**: `dataset/prompts_swallow_bench.jsonl` (30プロンプト)
-2. **ベンチマーク実装**: `Python/Benchmark/swallow_inference_benchmark.py`
+1. **データセット準備**: `dataset/prompts_swallow_bench.jsonl` (31プロンプト) ← **更新済み**
+2. **ベンチマーク実装**: `Python/Benchmark/swallow_inference_benchmark.py` ← **最適化済み**
 3. **検証統合**: `Python/Validation/paper_validation_runner.py` にR-2検証メソッド追加
 4. **設定ファイル**: `Python/Benchmark/swallow_config.py`
 5. **テストスクリプト**: `Python/test_r2_implementation.py`
-6. **TODO.MD更新**: R-2項目を「機能実装完了/実験未実施」に変更
+6. **TODO.MD更新**: R-2項目を「機能実装完了/実験未実施」に変更 ← **詳細更新済み**
+7. **論文ドキュメント更新**: 英語・日本語ドラフトにR-2実装状況反映 ← **NEW!**
 
 ## 📋 実装詳細
 

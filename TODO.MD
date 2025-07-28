@@ -29,6 +29,8 @@
 - [x] **機能実装完了**: 継続学習による推論効率向上の測定システム (`Python/Benchmark/swallow_inference_benchmark.py`)
 - [x] **機能実装完了**: 論文記載「78%速度向上」の検証実験コード (`validate_r2_swallow_efficiency()`)
 - [x] **機能実装完了**: `tokens/sec`指標での性能比較実装
+- [x] **データセット完備**: 日本語推論ベンチマーク用プロンプト31件 (`dataset/prompts_swallow_bench.jsonl`)
+- [x] **統合実装完了**: `paper_validation_runner.py`にR-2検証メソッド統合済み
 - [ ] **実験未実施**: MI300X環境でのSwallow vs ベースライン推論速度測定
 
 ### R-3: Rakuten AI 2.0効率測定  
@@ -178,7 +180,7 @@
 **高優先度（実装状況）**:
 
 - **R-1 MLA KV Cache**: ✅ 機能実装完了（Python/Benchmark/mla_kv_cache_benchmark.py）/ ❌ 実験未実施
-- **R-2 Swallow**: ✅ 機能実装完了 / ❌ 実験未実施
+- **R-2 Swallow**: ✅ 機能実装完了（Python/Benchmark/swallow_inference_benchmark.py + dataset/prompts_swallow_bench.jsonl）/ ❌ 実験未実施
 - **R-3 Rakuten AI**: ✅ 機能実装完了（Python/Validation/paper_validation_runner.py:130-150）/ ❌ 実験未実施
 - **R-4 hipBLASLt**: ✅ 機能実装完了（R-3と統合）/ ❌ 実験未実施
 - **R-5 LoRA Parameters**: ✅ 機能実装完了（Python/Benchmark/lora_efficiency_benchmark.py）/ ❌ 実験未実施
