@@ -1,6 +1,15 @@
 # =============================================================================
-# DeepSeek R1 Japanese Language Adaptation: Statistical Analysis Framework
-# JLCE (Japanese Language Comprehension Evaluation) Implementation
+# JLCE Statistical Framework - Core Analysis Module
+# DeepSeek R1 Japanese Language Adaptation: Mathematical Framework Implementation
+# 
+# PURPOSE: 論文で定義されたJLCE数学的フレームワークの完全実装
+# - JLCE複合スコア計算（4次元評価：意味論・構文・語用論・文化的適切性）
+# - Bootstrap信頼区間算出（統計的妥当性検証）
+# - 効果量評価（Cohen's d）とモデル間比較分析
+# - 完全自動化分析パイプライン
+# 
+# SCOPE: 日本語言語モデル評価の学術的品質保証
+# TARGET: 研究者・開発者向けの標準評価ツール
 # 
 # Author: Akira Ito (AETS - Akatsuki Enterprise Technology Solutions)
 # Date: 2025-07-29
