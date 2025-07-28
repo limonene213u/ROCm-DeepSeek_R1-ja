@@ -71,6 +71,8 @@ class LoRAEfficiencyResult:
     eval_loss: float
     eval_perplexity: float
     model_size_mb: float
+    throughput_samples_per_sec: float
+    final_loss: float
     measurement_timestamp: str
 
 class JapaneseDatasetGenerator:
@@ -301,7 +303,6 @@ class LoRAEfficiencyBenchmark:
             parameter_reduction_ratio=1.0,  # ベースライン
             peak_memory_mb=peak_memory,
             training_time_minutes=training_time,
-            memory_reduction_ratio=1.0,  # ベースライン
             throughput_samples_per_sec=len(dataset) / (training_time * 60),
             final_loss=trainer.state.log_history[-1].get("train_loss", 0.0) if trainer.state.log_history else 0.0,
             measurement_timestamp=time.strftime("%Y-%m-%d %H:%M:%S")
@@ -312,12 +313,14 @@ class LoRAEfficiencyBenchmark:
         gc.collect()
         if self.device == "cuda":
             torch.cuda.empty_cache()
-        
+
         return result
+
+    def count_parameters(self, model: Any) -> Tuple[int, int]:
         """パラメータ数カウント"""
         total_params = sum(p.numel() for p in model.parameters())
         trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-        return trainable_params, total_params
+        return total_params, trainable_params
     
     def measure_model_size(self, model: Any) -> float:
         """モデルサイズ測定（MB）"""
@@ -384,18 +387,22 @@ class LoRAEfficiencyBenchmark:
         start_time = time.time()
         trainer.train()
         training_time = (time.time() - start_time) / 60  # 分単位
-        
+
         # 評価実行
         eval_results = trainer.evaluate()
         
         # メモリ使用量測定
         peak_memory = torch.cuda.max_memory_allocated() / (1024 * 1024) if self.device == "cuda" else 0
         
+        final_loss = trainer.state.log_history[-1].get("loss", 0.0) if trainer.state.log_history else 0.0
+
         return {
             "training_time_minutes": training_time,
             "eval_loss": eval_results.get("eval_loss", 0.0),
             "eval_perplexity": np.exp(eval_results.get("eval_loss", 0.0)),
-            "peak_memory_mb": peak_memory
+            "peak_memory_mb": peak_memory,
+            "throughput_samples_per_sec": len(dataset) / (training_time * 60) if training_time > 0 else 0.0,
+            "final_loss": final_loss
         }
     
     def run_full_finetuning_benchmark(self, dataset_size: int) -> LoRAEfficiencyResult:
@@ -411,7 +418,7 @@ class LoRAEfficiencyBenchmark:
         dataset = dataset_generator.create_dataset(texts)
         
         # パラメータ数測定
-        trainable_params, total_params = self.count_parameters(model)
+        total_params, trainable_params = self.count_parameters(model)
         model_size = self.measure_model_size(model)
         
         # 学習実行
@@ -430,6 +437,8 @@ class LoRAEfficiencyBenchmark:
             parameter_reduction_ratio=1.0,  # フル学習は削減なし
             peak_memory_mb=training_results["peak_memory_mb"],
             training_time_minutes=training_results["training_time_minutes"],
+            throughput_samples_per_sec=training_results["throughput_samples_per_sec"],
+            final_loss=training_results["final_loss"],
             eval_loss=training_results["eval_loss"],
             eval_perplexity=training_results["eval_perplexity"],
             model_size_mb=model_size,
@@ -460,8 +469,8 @@ class LoRAEfficiencyBenchmark:
         dataset = dataset_generator.create_dataset(texts)
         
         # パラメータ数測定
-        trainable_params, total_params = self.count_parameters(lora_model)
-        base_trainable_params, _ = self.count_parameters(base_model)
+        total_params, trainable_params = self.count_parameters(lora_model)
+        _, base_trainable_params = self.count_parameters(base_model)
         
         parameter_reduction_ratio = base_trainable_params / trainable_params if trainable_params > 0 else 0
         model_size = self.measure_model_size(lora_model)
@@ -482,6 +491,8 @@ class LoRAEfficiencyBenchmark:
             parameter_reduction_ratio=parameter_reduction_ratio,
             peak_memory_mb=training_results["peak_memory_mb"],
             training_time_minutes=training_results["training_time_minutes"],
+            throughput_samples_per_sec=training_results["throughput_samples_per_sec"],
+            final_loss=training_results["final_loss"],
             eval_loss=training_results["eval_loss"],
             eval_perplexity=training_results["eval_perplexity"],
             model_size_mb=model_size,
