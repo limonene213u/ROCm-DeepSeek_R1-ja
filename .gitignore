@@ -23,6 +23,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+
 # 仮想環境
 .env
 .venv
@@ -57,3 +58,4 @@ deepseek-ja-output
 
 memo
 .memo
+*.backup
