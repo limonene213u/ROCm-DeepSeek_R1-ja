@@ -114,3 +114,7 @@ Opinion.mdで提起された「論文記載値と実装の重大な不整合（7
 ### 2025-07-29
 - Fixed syntax issues in `Python/mla_kv_cache_benchmark.py` (duplicate dataclass and return).
 
+## 2025-07-28 Swallow benchmark update
+- Added vocabulary-size compensation to `swallow_inference_benchmark.py`. Baseline tokens/sec are scaled by `32k/43k` before computing the speedup ratio. The JSON output now records both raw and adjusted throughput values.
+- Created `dataset/prompts_swallow_bench.jsonl` containing 30 Japanese prompts for R-2 benchmarking.
+- Documented the benchmark in `Description_codes-swallow_inference_benchmark.md`.

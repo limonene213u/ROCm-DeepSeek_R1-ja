@@ -251,7 +251,9 @@ class SwallowInferenceBenchmark:
         )
     
     def run_comparative_benchmark(self, baseline_model: str, swallow_model: str,
-                                prompt_file: str) -> Dict:
+                                prompt_file: str,
+                                baseline_vocab: int = 32000,
+                                swallow_vocab: int = 43000) -> Dict:
         """ベースラインとSwallowモデルの比較ベンチマーク実行"""
         
         prompts = self.load_prompts(prompt_file)
@@ -267,8 +269,12 @@ class SwallowInferenceBenchmark:
             baseline_result = self.measure_tokens_per_sec_transformers(baseline_model, prompts)
             swallow_result = self.measure_tokens_per_sec_transformers(swallow_model, prompts)
         
+        # 語彙差異補正
+        baseline_adj_tps = baseline_result.tokens_per_sec * (baseline_vocab / swallow_vocab)
+        swallow_adj_tps = swallow_result.tokens_per_sec
+
         # 速度向上率計算
-        speedup_ratio = swallow_result.tokens_per_sec / baseline_result.tokens_per_sec
+        speedup_ratio = swallow_adj_tps / baseline_adj_tps
         speedup_percentage = (speedup_ratio - 1.0) * 100
         
         # 結果まとめ
@@ -278,6 +284,7 @@ class SwallowInferenceBenchmark:
             "baseline": {
                 "model": baseline_result.model_name,
                 "tokens_per_sec": baseline_result.tokens_per_sec,
+                "adjusted_tokens_per_sec": baseline_adj_tps,
                 "avg_latency_sec": baseline_result.avg_latency,
                 "confidence_interval": baseline_result.confidence_interval,
                 "memory_peak_mb": baseline_result.memory_peak_mb
@@ -285,6 +292,7 @@ class SwallowInferenceBenchmark:
             "swallow": {
                 "model": swallow_result.model_name,
                 "tokens_per_sec": swallow_result.tokens_per_sec,
+                "adjusted_tokens_per_sec": swallow_adj_tps,
                 "avg_latency_sec": swallow_result.avg_latency,
                 "confidence_interval": swallow_result.confidence_interval,
                 "memory_peak_mb": swallow_result.memory_peak_mb
@@ -325,12 +333,12 @@ class SwallowInferenceBenchmark:
         comparison = results["comparison"]
         
         print(f"Baseline Model: {baseline['model']}")
-        print(f"  Tokens/sec: {baseline['tokens_per_sec']:.2f}")
+        print(f"  Tokens/sec: {baseline['tokens_per_sec']:.2f} (adj {baseline['adjusted_tokens_per_sec']:.2f})")
         print(f"  Avg Latency: {baseline['avg_latency_sec']:.3f}s")
         print(f"  Memory Peak: {baseline['memory_peak_mb']:.1f}MB")
         
         print(f"\nSwallow Model: {swallow['model']}")
-        print(f"  Tokens/sec: {swallow['tokens_per_sec']:.2f}")
+        print(f"  Tokens/sec: {swallow['tokens_per_sec']:.2f} (adj {swallow['adjusted_tokens_per_sec']:.2f})")
         print(f"  Avg Latency: {swallow['avg_latency_sec']:.3f}s")
         print(f"  Memory Peak: {swallow['memory_peak_mb']:.1f}MB")
         
