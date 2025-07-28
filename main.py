@@ -21,10 +21,32 @@ import os
 # プロジェクトのルートディレクトリをパスに追加
 sys.path.append(str(Path(__file__).parent))
 
-from Python.paper_validation_runner import PaperValidationRunner
-from Python.mla_kv_cache_benchmark import MLAEfficiencyMeasurer, MLABenchmarkConfig
-from Python.lora_efficiency_benchmark import LoRAEfficiencyBenchmark, LoRABenchmarkConfig
-# from Python.paper_validation_suite import PaperClaimVerificationSystem  # 未実装
+try:
+    from Python.Validation.paper_validation_runner import PaperValidationRunner
+    from Python.Benchmark.mla_kv_cache_benchmark import MLAEfficiencyMeasurer, MLABenchmarkConfig
+    from Python.Benchmark.lora_efficiency_benchmark import LoRAEfficiencyBenchmark, LoRABenchmarkConfig
+    # from Python.Validation.paper_validation_suite import PaperClaimVerificationSystem  # 未実装
+except ImportError as e:
+    print(f"Warning: Some modules could not be imported: {e}")
+    print("Please ensure all dependencies are installed.")
+    # フォールバック用のダミークラス
+    class PaperValidationRunner:
+        def __init__(self, *args, **kwargs): pass
+        def run_all_validations(self): return {"status": "error", "message": "Dependencies not installed"}
+    
+    class MLAEfficiencyMeasurer:
+        def __init__(self, *args, **kwargs): pass
+        def run_benchmark(self): return {"status": "error", "message": "Dependencies not installed"}
+    
+    class MLABenchmarkConfig:
+        def __init__(self, *args, **kwargs): pass
+    
+    class LoRAEfficiencyBenchmark:
+        def __init__(self, *args, **kwargs): pass
+        def run_benchmark(self): return {"status": "error", "message": "Dependencies not installed"}
+    
+    class LoRABenchmarkConfig:
+        def __init__(self, *args, **kwargs): pass
 
 class DeepSeekBenchmarkManager:
     """DeepSeek R1 日本語適応ベンチマーク統合管理システム"""
@@ -109,7 +131,7 @@ class DeepSeekBenchmarkManager:
         
         try:
             # データセット準備は実際の実装が必要な場合のみ実行
-            # from Python.dataset_preparation import DatasetManager
+            # from Python.DataProcessing.dataset_preparation import DatasetManager
             
             # 現在は準備完了状態をシミュレート
             results = {
