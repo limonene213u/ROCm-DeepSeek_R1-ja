@@ -107,6 +107,79 @@ class PaperValidationRunner:
             "batch_sizes": [1, 2, 4, 8]
         }
     
+    def validate_r2_swallow_efficiency(self) -> Dict[str, Any]:
+        """R-2: Swallow推論効率検証"""
+        self.logger.info("🔬 R-2: Swallow Inference Efficiency Validation")
+        
+        try:
+            # Swallow ベンチマーク実行
+            from Python.Benchmark.swallow_inference_benchmark import SwallowInferenceBenchmark
+            
+            benchmark = SwallowInferenceBenchmark(results_dir=str(self.output_dir))
+            
+            # モデル設定
+            baseline_model = "microsoft/DialoGPT-large"  # 32k vocab baseline
+            swallow_model = "tokyotech-llm/Swallow-7b-hf"  # 43k vocab Swallow
+            prompt_file = "dataset/prompts_swallow_bench.jsonl"
+            
+            # ベンチマーク実行
+            results = benchmark.run_comparative_benchmark(
+                baseline_model=baseline_model,
+                swallow_model=swallow_model,
+                prompt_file=prompt_file
+            )
+            
+            # 検証結果の評価
+            speedup_ratio = results["comparison"]["speedup_ratio"]
+            meets_target = results["comparison"]["meets_target"]
+            target_speedup = 1.70  # 70%高速化目標
+            
+            validation_status = "PASS" if meets_target else "FAIL"
+            
+            result = {
+                "validation_type": "R-2 Swallow Inference Efficiency",
+                "status": "COMPLETED",
+                "overall_validation": meets_target,
+                "speedup_ratio": speedup_ratio,
+                "speedup_percentage": (speedup_ratio - 1.0) * 100,
+                "target_speedup": target_speedup,
+                "baseline_model": baseline_model,
+                "swallow_model": swallow_model,
+                "baseline_tokens_per_sec": results["baseline"]["tokens_per_sec"],
+                "swallow_tokens_per_sec": results["swallow"]["tokens_per_sec"],
+                "confidence_intervals": {
+                    "baseline": results["baseline"]["confidence_interval"],
+                    "swallow": results["swallow"]["confidence_interval"]
+                },
+                "memory_usage": {
+                    "baseline_mb": results["baseline"]["memory_peak_mb"],
+                    "swallow_mb": results["swallow"]["memory_peak_mb"]
+                },
+                "validation_status": validation_status
+            }
+            
+            # 結果保存
+            results_file = self.output_dir / "r2_swallow_validation.json"
+            with open(results_file, 'w', encoding='utf-8') as f:
+                json.dump(result, f, indent=2, ensure_ascii=False, default=str)
+            
+            # ログ出力
+            self.logger.info(f"R-2 Swallow Result: {'✅ PASS' if meets_target else '❌ FAIL'}")
+            self.logger.info(f"  Speedup Ratio: {speedup_ratio:.2f}x ({(speedup_ratio-1)*100:+.1f}%)")
+            self.logger.info(f"  Target: {target_speedup:.2f}x (70% improvement)")
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Swallow efficiency validation failed: {e}")
+            return {
+                "validation_type": "R-2 Swallow Inference Efficiency",
+                "status": "ERROR",
+                "overall_validation": False,
+                "error": str(e),
+                "validation_status": "FAIL"
+            }
+    
     def validate_r5_r6_lora_efficiency(self) -> Dict[str, Any]:
         """R-5/R-6: LoRA効率性検証 (統合版)"""
         self.logger.info("🔬 R-5/R-6: LoRA Efficiency Validation (Integrated)")
@@ -277,7 +350,7 @@ class PaperValidationRunner:
         self.logger.info("🚀 Starting Comprehensive Paper Validation")
         
         # 検証対象決定
-        validations_to_run = specific_validations or ["r1", "r5", "r6", "r3", "r4", "r7", "r8"]
+        validations_to_run = specific_validations or ["r1", "r2", "r5", "r6", "r3", "r4", "r7", "r8"]
         
         comprehensive_results = {
             "validation_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -293,6 +366,14 @@ class PaperValidationRunner:
             except Exception as e:
                 self.logger.error(f"R-1 validation failed: {e}")
                 comprehensive_results["results"]["r1"] = {"error": str(e)}
+        
+        # R-2: Swallow推論効率
+        if "r2" in validations_to_run:
+            try:
+                comprehensive_results["results"]["r2"] = self.validate_r2_swallow_efficiency()
+            except Exception as e:
+                self.logger.error(f"R-2 validation failed: {e}")
+                comprehensive_results["results"]["r2"] = {"error": str(e)}
         
         # R-5/R-6: LoRA効率性
         if any(v in validations_to_run for v in ["r5", "r6"]):

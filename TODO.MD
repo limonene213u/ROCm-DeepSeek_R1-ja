@@ -26,9 +26,10 @@
 
 ### R-2: Swallow推論効率測定
 
-- [ ] **機能未実装**: 継続学習による推論効率向上の測定システム
-- [ ] **機能未実装**: 論文記載「78%速度向上」の検証実験コード
-- [ ] **機能未実装**: `tokens/sec`指標での性能比較実装
+- [x] **機能実装完了**: 継続学習による推論効率向上の測定システム (`Python/Benchmark/swallow_inference_benchmark.py`)
+- [x] **機能実装完了**: 論文記載「78%速度向上」の検証実験コード (`validate_r2_swallow_efficiency()`)
+- [x] **機能実装完了**: `tokens/sec`指標での性能比較実装
+- [ ] **実験未実施**: MI300X環境でのSwallow vs ベースライン推論速度測定
 
 ### R-3: Rakuten AI 2.0効率測定  
 
@@ -177,7 +178,7 @@
 **高優先度（実装状況）**:
 
 - **R-1 MLA KV Cache**: ✅ 機能実装完了（Python/Benchmark/mla_kv_cache_benchmark.py）/ ❌ 実験未実施
-- **R-2 Swallow**: ❌ 機能未実装
+- **R-2 Swallow**: ✅ 機能実装完了 / ❌ 実験未実施
 - **R-3 Rakuten AI**: ✅ 機能実装完了（Python/Validation/paper_validation_runner.py:130-150）/ ❌ 実験未実施
 - **R-4 hipBLASLt**: ✅ 機能実装完了（R-3と統合）/ ❌ 実験未実施
 - **R-5 LoRA Parameters**: ✅ 機能実装完了（Python/Benchmark/lora_efficiency_benchmark.py）/ ❌ 実験未実施
@@ -201,9 +202,8 @@
 
 **機能実装が必要な項目**:
 
-1. **R-2 Swallowの実装**: 推論効率測定システム（低優先度）
-2. **paper_validation_suite.pyの実装**: 残りの検証メソッド
-3. **追加自動化機能**: environment_setup.py, model_downloader.py等
+1. **paper_validation_suite.pyの実装**: 残りの検証メソッド
+2. **追加自動化機能**: environment_setup.py, model_downloader.py等
 
 **実験・検証が必要な項目（機能実装済み）**:
 

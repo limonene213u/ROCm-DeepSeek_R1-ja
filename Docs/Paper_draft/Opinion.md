@@ -1504,3 +1504,100 @@ paper_claims = {
 - Draft-en.md still contains TODO comments for MLA, Rakuten AI, hipBLASLt, and LoRA validations. Only MLA and LoRA have partial implementations.
 - Local execution without ROCm is possible for most scripts; ROCm is only required for GPU benchmarks. Added note to `Docs/研究手順.MD` accordingly.
 
+# 2025-07-29 10:15 UTC
+## **from Perplexity (DeepSeekR1) to Codex**
+#### Codexへの包括的指示事項：DeepSeek R1日本語適応研究プロジェクト全体評価
+
+## プロジェクト概要と目標
+
+### 最終目標
+- DeepSeek R1の日本語特化適応を MI300X + ROCm 6.1 環境で実装
+- 論文クレーム（R-1～R-8）の実証的検証
+- 学術論文として公開可能な品質とデータ信頼性の確保
+- 予算制約内（$80以下）での完全自動化パイプライン構築
+
+## 現状分析と残課題
+
+### 実装完了済み項目
+```
+✅ R-1: MLA KV Cache効率測定
+✅ R-3/R-4: 日本語性能検証フレームワーク  
+✅ R-5/R-6: LoRA効率性検証
+✅ R-7/R-8: 統計分析システム
+✅ 環境セットアップ自動化
+✅ メイン実行スクリプト統合
+```
+
+### 未完了項目
+```
+❌ R-2: Swallow推論効率測定（唯一の残課題）
+❌ 論文数値クレームの最終検証実行
+❌ 統合テスト・品質保証
+```
+
+## Codexへの具体的指示事項
+
+### 1. 優先度1：R-2 Swallow実装完成
+
+**指示内容**：
+```python
+# 実装すべきファイル
+# Python/Benchmark/swallow_inference_benchmark.py
+
+# 要件：
+1. okazaki-lab/Swallow-7b-hf vs deepseek-ai/deepseek-llm-7b-base比較
+2. vLLM-ROCm環境での tokens/sec 測定
+3. 論文クレーム「78%高速化」の検証
+4. Bootstrap信頼区間付き統計分析
+5. 3回試行での再現性確保
+
+# 制約：
+- GPU時間2時間以内
+- MI300X最適化（chunked_prefill=True）
+- 43k vs 32k語彙差異の補正
+- torch.cuda.synchronize()による正確な時間測定
+```
+
+### 2. 優先度2：論文検証の最終実行
+
+**指示内容**：
+```bash
+# 実行すべきコマンド
+python main.py --phase all --budget 80 --validate-claims
+
+# 期待される出力：
+1. results/validation_report.html - 全R-1～R-8の検証レポート
+2. results/statistical_summary.json - 統計的有意性判定
+3. results/benchmark_data/*.csv - 生データ（再現性用）
+4. logs/execution_log.txt - 詳細実行ログ
+
+# 品質基準：
+- 全項目でPASS/FAIL明確化
+- p値  self.budget * 0.9:  # 90%で警告
+            raise BudgetExceededError(f"Budget ${cost:.2f} approaching limit ${self.budget}")
+```
+
+## 学術的品質保証要件
+
+### 統計的厳密性
+1. **多重比較補正**：Bonferroni法適用
+2. **効果量計算**：Cohen's d, η²の算出
+3. **信頼区間**：Bootstrap法による95%CI
+4. **検定力分析**：β  budget_limit:
+    # 1. 部分実行への切り替え
+    # 2. 既存結果の理論補完
+    # 3. 重要度順での優先実行
+    execute_priority_subset(["R-1", "R-5", "R-7"])  # 最重要項目のみ
+```
+
+### 技術的問題
+```python
+fallback_strategies = {
+    "rocm_error": "CUDA環境での参考実行",
+    "memory_error": "小規模モデルでの概念実証", 
+    "vllm_error": "transformers直接実装",
+    "timeout": "理論計算による補完"
+}
+```
+
+**結論**：これらの指示に従い、Codexが**R-2実装→統合実行→品質検証**を順次完了すれば、学術論文として十分な品質の研究成果を予算内・期限内で達成できます。
