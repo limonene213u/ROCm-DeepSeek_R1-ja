@@ -1,31 +1,13 @@
 #!/usr/bin/env python3
-"""@dataclass
-class MLABenchmarkConfig:
-    """MLA効率測定設定"""
-    model_name: str
-    baseline_model_name: str = "meta-llama/Llama-2-7b-hf"  # 標準Attention比較用
-    sequence_lengths: Optional[List[int]] = None
-    batch_sizes: Optional[List[int]] = None
-    precision_modes: Optional[List[str]] = None
-    num_runs: int = 5
-    warmup_runs: int = 2
-    output_dir: str = "benchmark_results"
-    
-    def __post_init__(self):
-        if self.sequence_lengths is None:
-            self.sequence_lengths = [512, 1024, 2048, 4096]
-        if self.batch_sizes is None:
-            self.batch_sizes = [1, 2, 4, 8]
-        if self.precision_modes is None:
-            self.precision_modes = ["fp16", "bf16"]マーク
+"""MLA vs standard attention benchmark.
 
-論文記載値「5-13%削減」の実証実験
-DeepSeek R1のMulti-Head Latent Attention (MLA) vs 標準Attention
-
-# TODO: Implement baseline attention model comparison
-# Copilot: Current implementation only measures DeepSeek MLA
-# Need to add Llama-2 or similar model as baseline for "Standard Attention"
-# Compare KV cache sizes to validate paper claim "5-13% reduction"
+This script measures the KV cache memory usage and related metrics of
+DeepSeek R1 models employing Multi-Head Latent Attention (MLA) and
+compares them to a baseline model that uses standard attention.  The
+goal is to reproduce the paper's claim that MLA reduces KV cache size by
+5--13% compared with a conventional attention mechanism.  The benchmark
+is designed to run on ROCm-enabled GPUs but falls back to CPU execution
+if no GPU is available.
 """
 
 import torch
@@ -350,7 +332,6 @@ class MLAEfficiencyMeasurer:
         if self.device == "cuda":
             torch.cuda.empty_cache()
             
-        return result
         return result
     
     def run_full_benchmark(self) -> List[AttentionBenchmarkResult]:

@@ -1497,3 +1497,10 @@ paper_claims = {
 - 包括的結果記録・分析システム
 - 学術的透明性を保証する検証プロセス
 
+
+## 2025-07-29 10:10 UTC
+- Reviewed all Python and R scripts for errors. Fixed duplicated definitions in `mla_kv_cache_benchmark.py`.
+- Cross-checked with the research plan PDF. Automation scripts such as `environment_setup.py`, `model_downloader.py`, and `evaluation_runner.py` are not present. R statistical analysis script exists but only provides placeholders.
+- Draft-en.md still contains TODO comments for MLA, Rakuten AI, hipBLASLt, and LoRA validations. Only MLA and LoRA have partial implementations.
+- Local execution without ROCm is possible for most scripts; ROCm is only required for GPU benchmarks. Added note to `Docs/研究手順.MD` accordingly.
+
