@@ -311,6 +311,8 @@ class MLAEfficiencyMeasurer:
         validation_results["overall_validation"] = valid_count / len(measurements) >= 0.8  # 80%以上で合格
         
         return validation_results
+    
+    def run_benchmark_single_config(self, seq_length: int, batch_size: int, precision: str) -> AttentionBenchmarkResult:
         """単一設定でのベンチマーク実行"""
         self.logger.info(f"Running benchmark: seq_len={seq_length}, batch_size={batch_size}, precision={precision}")
         
@@ -348,6 +350,7 @@ class MLAEfficiencyMeasurer:
         if self.device == "cuda":
             torch.cuda.empty_cache()
             
+        return result
         return result
     
     def run_full_benchmark(self) -> List[AttentionBenchmarkResult]:
@@ -427,7 +430,7 @@ class MLAEfficiencyMeasurer:
         
         return summary_metrics
     
-    def save_results(self, filename: str = None):
+    def save_results(self, filename: Optional[str] = None):
         """結果保存"""
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
