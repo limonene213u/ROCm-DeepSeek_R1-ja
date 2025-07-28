@@ -472,35 +472,61 @@ class MLAEfficiencyMeasurer:
         return output_path
 
 def main():
-    """メイン実行関数"""
+    """メイン実行関数 - 論文記載値検証含む"""
+    print("=== MLA vs Standard Attention Benchmark (Paper Validation) ===")
+    
     # 設定
     config = MLABenchmarkConfig(
         model_name="deepseek-ai/deepseek-r1-distill-qwen-1.5b",
-        sequence_lengths=[512, 1024, 2048, 4096],
-        batch_sizes=[1, 2, 4, 8],
-        precision_modes=["fp16", "bf16"],
-        num_runs=5,
-        warmup_runs=2,
+        baseline_model_name="meta-llama/Llama-2-7b-hf",
+        sequence_lengths=[512, 1024, 2048],  # 高速化のため削減
+        batch_sizes=[1, 2, 4],
+        precision_modes=["fp16"],
+        num_runs=3,
+        warmup_runs=1,
         output_dir="./benchmark_results"
     )
     
-    # ベンチマーク実行
+    # ベンチマーク実行システム
     measurer = MLAEfficiencyMeasurer(config)
-    results = measurer.run_full_benchmark()
+    
+    # 論文記載値検証実行（最重要）
+    print("\n🔬 Validating Paper Claims: 5-13% KV Cache Memory Reduction")
+    validation_results = measurer.validate_paper_claims()
+    
+    # 検証結果表示
+    print(f"\nPaper Validation Results:")
+    print(f"Target: 5-13% KV cache memory reduction")
+    print(f"Overall validation: {'✅ PASS' if validation_results['overall_validation'] else '❌ FAIL'}")
+    
+    measurements = validation_results["paper_claim_5_13_percent"]["measurements"]
+    valid_measurements = [m for m in measurements if m["validates_claim"]]
+    
+    print(f"Valid measurements: {len(valid_measurements)}/{len(measurements)}")
+    
+    if measurements:
+        reductions = [m["reduction_percent"] for m in measurements]
+        print(f"Reduction range: {min(reductions):.2f}% - {max(reductions):.2f}%")
+        print(f"Average reduction: {np.mean(reductions):.2f}%")
     
     # 結果保存
-    measurer.save_results()
+    results_file = measurer.save_results("mla_paper_validation_results.json")
     
-    # 簡易レポート出力
-    print(f"\nMLA Efficiency Benchmark Complete")
-    print(f"Total measurements: {len(results)}")
-    print(f"Model: {config.model_name}")
+    # 詳細結果ファイル保存
+    validation_file = Path(config.output_dir) / "paper_validation_results.json"
+    validation_file.parent.mkdir(parents=True, exist_ok=True)
     
-    if results:
-        avg_kv_memory = np.mean([r.kv_cache_memory_mb for r in results])
-        avg_throughput = np.mean([r.throughput_tokens_per_sec for r in results])
-        print(f"Average KV Cache Memory: {avg_kv_memory:.2f} MB")
-        print(f"Average Throughput: {avg_throughput:.2f} tokens/sec")
+    with open(validation_file, 'w', encoding='utf-8') as f:
+        json.dump(validation_results, f, indent=2, ensure_ascii=False, default=str)
+    
+    print(f"\nResults saved to:")
+    print(f"- Benchmark: {results_file}")
+    print(f"- Validation: {validation_file}")
+    
+    # Opinion.md R-1 対応完了報告
+    print(f"\n📋 Opinion.md R-1 Status: {'✅ VALIDATED' if validation_results['overall_validation'] else '❌ REQUIRES INVESTIGATION'}")
+    
+    return validation_results
 
 if __name__ == "__main__":
     main()
