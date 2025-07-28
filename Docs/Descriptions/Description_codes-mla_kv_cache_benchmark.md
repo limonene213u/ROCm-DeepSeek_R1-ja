@@ -195,3 +195,8 @@ def save_results(self, filename: str = None):
 4. **スループット**: 実用的な性能指標としてのtokens/sec測定
 
 このベンチマークにより、論文の主要な技術的主張の一つであるMLA効率性を定量的に検証し、学術的信頼性を確保します。
+
+### 2025-07-29 Bug Fix
+- Removed duplicated dataclass definition and stray characters at file start.
+- Fixed duplicate return statement in `run_benchmark_single_config`.
+
