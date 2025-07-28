@@ -1,6 +1,23 @@
 #!/usr/bin/env python3
-"""
-MLA KVキャッシュ効率測定ベンチマーク
+"""@dataclass
+class MLABenchmarkConfig:
+    """MLA効率測定設定"""
+    model_name: str
+    baseline_model_name: str = "meta-llama/Llama-2-7b-hf"  # 標準Attention比較用
+    sequence_lengths: Optional[List[int]] = None
+    batch_sizes: Optional[List[int]] = None
+    precision_modes: Optional[List[str]] = None
+    num_runs: int = 5
+    warmup_runs: int = 2
+    output_dir: str = "benchmark_results"
+    
+    def __post_init__(self):
+        if self.sequence_lengths is None:
+            self.sequence_lengths = [512, 1024, 2048, 4096]
+        if self.batch_sizes is None:
+            self.batch_sizes = [1, 2, 4, 8]
+        if self.precision_modes is None:
+            self.precision_modes = ["fp16", "bf16"]マーク
 
 論文記載値「5-13%削減」の実証実験
 DeepSeek R1のMulti-Head Latent Attention (MLA) vs 標準Attention
@@ -16,8 +33,8 @@ import torch.nn as nn
 import time
 import psutil
 import gc
-from typing import Dict, List, Tuple, Any
-from dataclasses import dataclass
+from typing import Dict, List, Tuple, Any, Optional
+from dataclasses import dataclass, field
 import json
 import logging
 from pathlib import Path
@@ -28,12 +45,21 @@ import numpy as np
 class MLABenchmarkConfig:
     """MLA効率測定設定"""
     model_name: str
-    sequence_lengths: List[int]
-    batch_sizes: List[int]
-    precision_modes: List[str]
-    num_runs: int
-    warmup_runs: int
-    output_dir: str
+    baseline_model_name: str = "meta-llama/Llama-2-7b-hf"  # 標準Attention比較用
+    sequence_lengths: List[int] = None
+    batch_sizes: List[int] = None
+    precision_modes: List[str] = None
+    num_runs: int = 5
+    warmup_runs: int = 2
+    output_dir: str = "benchmark_results"
+    
+    def __post_init__(self):
+        if self.sequence_lengths is None:
+            self.sequence_lengths = [512, 1024, 2048, 4096]
+        if self.batch_sizes is None:
+            self.batch_sizes = [1, 2, 4, 8]
+        if self.precision_modes is None:
+            self.precision_modes = ["fp16", "bf16"]
 
 @dataclass
 class AttentionBenchmarkResult:
@@ -213,7 +239,78 @@ class MLAEfficiencyMeasurer:
         throughput = total_tokens / (end_time - start_time)
         return throughput
     
-    def run_benchmark_single_config(self, seq_length: int, batch_size: int, precision: str) -> AttentionBenchmarkResult:
+    def run_baseline_comparison(self, seq_length: int, batch_size: int, precision: str) -> Tuple[AttentionBenchmarkResult, AttentionBenchmarkResult]:
+        """MLA vs 標準Attention ベースライン比較（論文記載値5-13%削減検証）"""
+        self.logger.info(f"Running baseline comparison: MLA vs Standard Attention")
+        self.logger.info(f"Config: seq_len={seq_length}, batch_size={batch_size}, precision={precision}")
+        
+        # DeepSeek R1 (MLA) 測定
+        mla_result = self.run_benchmark_single_config(seq_length, batch_size, precision)
+        
+        # メモリクリア
+        torch.cuda.empty_cache() if self.device == "cuda" else None
+        gc.collect()
+        
+        # 標準Attention（Llama-2）測定
+        original_model_name = self.config.model_name
+        self.config.model_name = self.config.baseline_model_name
+        
+        baseline_result = self.run_benchmark_single_config(seq_length, batch_size, precision)
+        baseline_result.attention_type = "Standard Attention"
+        
+        # 元のモデル名復元
+        self.config.model_name = original_model_name
+        
+        # 効率改善率計算（論文記載値検証）
+        kv_reduction_percent = (
+            (baseline_result.kv_cache_memory_mb - mla_result.kv_cache_memory_mb) 
+            / baseline_result.kv_cache_memory_mb * 100
+        )
+        
+        self.logger.info(f"KV Cache Memory Reduction: {kv_reduction_percent:.2f}%")
+        self.logger.info(f"Paper claim validation (5-13%): {'✓ PASS' if 5 <= kv_reduction_percent <= 13 else '✗ FAIL'}")
+        
+        return mla_result, baseline_result
+    
+    def validate_paper_claims(self) -> Dict[str, Any]:
+        """論文記載値の包括的検証"""
+        validation_results = {
+            "paper_claim_5_13_percent": {"target_range": (5, 13), "measurements": []},
+            "overall_validation": False,
+            "detailed_results": []
+        }
+        
+        for seq_length in self.config.sequence_lengths:
+            for batch_size in self.config.batch_sizes:
+                for precision in self.config.precision_modes:
+                    mla_result, baseline_result = self.run_baseline_comparison(
+                        seq_length, batch_size, precision
+                    )
+                    
+                    # 削減率計算
+                    reduction_percent = (
+                        (baseline_result.kv_cache_memory_mb - mla_result.kv_cache_memory_mb)
+                        / baseline_result.kv_cache_memory_mb * 100
+                    )
+                    
+                    validation_results["paper_claim_5_13_percent"]["measurements"].append({
+                        "seq_length": seq_length,
+                        "batch_size": batch_size,
+                        "precision": precision,
+                        "reduction_percent": reduction_percent,
+                        "mla_memory_mb": mla_result.kv_cache_memory_mb,
+                        "baseline_memory_mb": baseline_result.kv_cache_memory_mb,
+                        "validates_claim": 5 <= reduction_percent <= 13
+                    })
+                    
+                    validation_results["detailed_results"].extend([mla_result, baseline_result])
+        
+        # 全体検証判定
+        measurements = validation_results["paper_claim_5_13_percent"]["measurements"]
+        valid_count = sum(1 for m in measurements if m["validates_claim"])
+        validation_results["overall_validation"] = valid_count / len(measurements) >= 0.8  # 80%以上で合格
+        
+        return validation_results
         """単一設定でのベンチマーク実行"""
         self.logger.info(f"Running benchmark: seq_len={seq_length}, batch_size={batch_size}, precision={precision}")
         
