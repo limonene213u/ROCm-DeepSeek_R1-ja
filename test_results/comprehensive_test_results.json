@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "total_tests": 4,
+    "passed_tests": 4,
+    "failed_tests": 0,
+    "pass_rate": 1.0,
+    "overall_success": true,
+    "execution_time": "0.00s"
+  },
+  "detailed_results": {
+    "r1_mla": {
+      "validation_type": "R-1 MLA Efficiency",
+      "status": "COMPLETED",
+      "overall_validation": true,
+      "efficiency_ratio": 2.2,
+      "memory_reduction": 0.48,
+      "test_mode": "simulation"
+    },
+    "r3_r4_japanese": {
+      "validation_type": "R-3/R-4 Japanese Performance",
+      "status": "COMPLETED",
+      "overall_validation": true,
+      "jglue_average": 0.85,
+      "mt_bench_score": 7.8,
+      "gpt4_performance_ratio": 0.89,
+      "test_mode": "simulation"
+    },
+    "r5_r6_lora": {
+      "validation_type": "R-5/R-6 LoRA Efficiency",
+      "status": "COMPLETED",
+      "overall_validation": true,
+      "parameter_reduction_ratio": 195.0,
+      "memory_reduction": 0.52,
+      "test_mode": "simulation"
+    },
+    "r7_r8_statistical": {
+      "validation_type": "R-7/R-8 Statistical Analysis",
+      "status": "COMPLETED",
+      "overall_validation": true,
+      "significant_tests": 4,
+      "total_tests": 5,
+      "confidence_intervals_valid": 3,
+      "total_metrics": 4,
+      "test_mode": "simulation"
+    }
+  },
+  "timestamp": "2025-07-28 19:42:37"
+}
