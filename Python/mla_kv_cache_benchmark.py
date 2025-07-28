@@ -4,6 +4,11 @@ MLA KVキャッシュ効率測定ベンチマーク
 
 論文記載値「5-13%削減」の実証実験
 DeepSeek R1のMulti-Head Latent Attention (MLA) vs 標準Attention
+
+# TODO: Implement baseline attention model comparison
+# Copilot: Current implementation only measures DeepSeek MLA
+# Need to add Llama-2 or similar model as baseline for "Standard Attention"
+# Compare KV cache sizes to validate paper claim "5-13% reduction"
 """
 
 import torch

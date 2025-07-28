@@ -12,6 +12,11 @@ DeepSeek R1 represents a breakthrough in open-source reasoning models with **671
 
 **Multi-Head Latent Attention (MLA)** reduces KV cache size to **5-13% of traditional methods** through low-rank factorization and Rotary Position Embeddings (RoPE). This efficiency gain is particularly valuable for Japanese text processing, which typically requires **3x more tokens** than English due to complex character systems. The **61 transformer layers** use a hybrid approach with standard FFN in the first 3 layers and MoE in remaining layers, enabling dynamic expert activation patterns that could be optimized for Japanese linguistic structures.
 
+<!-- TODO: Validate MLA efficiency claims with empirical measurement -->
+<!-- Copilot: Paper claims "5-13% of traditional methods" but lacks empirical validation -->
+<!-- Implement actual KV cache size measurement in mla_kv_cache_benchmark.py -->
+<!-- Compare against baseline attention mechanism to verify reduction percentage -->
+
 ### Training Methodology and Reasoning Capabilities
 
 The model's training pipeline utilizes **Group Relative Policy Optimization (GRPO)** with innovative reward systems combining accuracy verification and format constraints. The emergence of **self-verification, reflection, and error correction** capabilities through reinforcement learning provides a strong foundation for Japanese adaptation, where contextual reasoning and implicit communication patterns require sophisticated inference chains.
@@ -25,6 +30,11 @@ Performance benchmarks demonstrate state-of-the-art reasoning: **79.8% on AIME 2
 The Japanese LLM landscape has achieved remarkable maturation in 2024-2025, with several models demonstrating **GPT-4-surpassing performance** on Japanese benchmarks. **ELYZA's Llama-3-ELYZA-JP-70B** leads with superior scores on ELYZA Tasks 100 and Japanese MT-Bench, while **Fujitsu's Takane** achieved world-leading **JGLUE benchmark results** with scores of **0.862 in semantic understanding** and **0.773 in syntactic analysis**.
 
 **Rakuten AI 2.0's 8x7B MoE architecture** achieved **72.29 average Japanese performance** versus **62.93 for the previous 7B model**, demonstrating **4x inference efficiency** through mixture-of-experts optimization. These developments provide crucial baselines for DeepSeek R1 Japanese adaptation evaluation.
+
+<!-- TODO: Validate Rakuten AI 2.0 efficiency claims -->
+<!-- Copilot: Paper claims "4x inference efficiency" but measurement methodology unclear -->
+<!-- Implement computational efficiency benchmarking in paper_validation_suite.py -->
+<!-- Define specific metrics: tokens/sec, FLOPS/token, memory bandwidth utilization -->
 
 ### Technical Adaptation Approaches
 
@@ -45,6 +55,11 @@ The AMD MI300X's **192 GB HBM3 memory capacity** with **5.3 TB/s bandwidth** pro
 **Mixed precision support** across **FP8, BF16, and FP16** formats enables optimal trade-offs between memory usage and accuracy for Japanese adaptation. **FP8 training achieves 2x memory reduction** with minimal accuracy impact, crucial for large-scale Japanese corpus processing where memory efficiency directly impacts training feasibility.
 
 **ROCm framework capabilities** include **hipBLASLt optimization** providing **~10% performance improvement** through offline tuning, and **TunableOp automatic GEMM kernel selection** for Japanese-specific workload patterns. The **Composable Kernel backend** for Flash Attention optimization directly benefits attention-heavy Japanese processing tasks.
+
+<!-- TODO: Empirically validate hipBLASLt performance improvement claims -->
+<!-- Copilot: Paper claims "~10% performance improvement" but lacks measurement data -->
+<!-- Implement matrix operation benchmarks in paper_validation_suite.py R-4 validation -->
+<!-- Measure GEMM performance with/without hipBLASLt optimization on MI300X -->
 
 **Multi-GPU scaling** through **Infinity Fabric connectivity** enables **896 GB/s inter-GPU bandwidth** across 8-GPU systems, supporting distributed training of Japanese-adapted DeepSeek R1 variants with **tensor parallelism** and **FSDP v2** implementations.
 
@@ -67,6 +82,12 @@ Performance benchmarking reveals **MeCab** as fastest (1.0x baseline) but **Suda
 ### Empirical Results for Japanese Models
 
 **LoRA effectiveness** for Japanese fine-tuning shows remarkable results: **6.7B Japanese model** with LoRA achieved **comparable performance to 1B full fine-tuning** using **200x fewer trainable parameters**. **Memory reduction** includes **100x smaller model files** and **2x less GPU memory usage**, critical for resource-efficient Japanese adaptation.
+
+<!-- TODO: Empirically validate LoRA efficiency claims -->
+<!-- Copilot: Paper claims "200x fewer trainable parameters" and "2x less GPU memory" -->
+<!-- Implement comparative benchmarking in lora_efficiency_benchmark.py -->
+<!-- Measure actual parameter counts and memory usage for full vs LoRA fine-tuning -->
+<!-- Validate performance retention claims with Japanese-specific evaluation tasks -->
 
 **Optimal hyperparameters** for Japanese models include **LoRA rank 4-8** for standard tasks, **higher ranks 16-32** for complex generation, targeting **query and value projections** in attention blocks. **Learning rates of 1e-4 to 5e-4** with **alpha parameters 16-32** provide optimal convergence for Japanese language tasks.
 

@@ -4,6 +4,14 @@
 R-1からR-8の全項目検証
 
 すべての論文クレームの実証実験と透明性確保
+
+# TODO: Implement missing validation methods for R-3, R-4, R-7, R-8
+# Copilot: Current implementation has placeholders for critical validations:
+# - R-3: Rakuten AI 2.0 "4x efficiency" needs computational benchmarking
+# - R-4: hipBLASLt "10% improvement" needs matrix operation benchmarks  
+# - R-7: Quick Optimization "10.47x speedup" needs end-to-end timing
+# - R-8: Analysis System "7.60x speedup" needs analysis pipeline timing
+# Refer to Opinion.md R-1 through R-8 requirements for implementation details
 """
 
 import json
@@ -395,6 +403,12 @@ class PaperClaimsValidator:
             self.logger.error(f"Internal benchmark validation failed: {e}")
         
         # 未実装の項目（R-2, R-3, R-4）
+        # TODO: Replace this placeholder with actual validation implementations
+        # Copilot: Current implementation creates PENDING results for missing validations
+        # R-2: Implement Swallow inference efficiency measurement (78% improvement claim)
+        # R-3: Implement Rakuten AI 2.0 computational efficiency benchmarking (4x efficiency claim)  
+        # R-4: Implement hipBLASLt matrix operations performance testing (~10% improvement claim)
+        # Reference: Opinion.md validation requirements and Draft-en.md performance claims
         for claim_id in ['R2_swallow_efficiency_gain', 'R3_rakuten_ai_efficiency', 'R4_hipblaslt_improvement']:
             pending_result = VerificationResult(
                 claim_id=claim_id,
@@ -404,7 +418,7 @@ class PaperClaimsValidator:
                 verification_status="PENDING",
                 measurement_conditions={'reason': 'benchmark_not_implemented'},
                 confidence_level=0.0,
-                notes="Benchmark implementation pending",
+                notes="Benchmark implementation pending - see TODO comments for implementation requirements",
                 measurement_timestamp=time.strftime("%Y-%m-%d %H:%M:%S")
             )
             all_results.append(pending_result)

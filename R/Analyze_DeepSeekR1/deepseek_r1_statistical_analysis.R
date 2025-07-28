@@ -1,6 +1,15 @@
 # DeepSeek R1 効率性統計分析
 # 論文記載値の統計的検証とベイジアン分析
 
+# TODO: Implement comprehensive statistical validation for all paper claims
+# Copilot: Current implementation provides framework for statistical analysis
+# Need to add specific statistical tests for:
+# - R-1: MLA KV cache reduction (5-13% claim) - hypothesis testing vs baseline
+# - R-5: LoRA parameter reduction (200x claim) - confidence intervals  
+# - R-6: LoRA memory reduction (2x claim) - paired t-test analysis
+# - R-7/R-8: Speed improvements (10.47x, 7.60x claims) - bootstrap confidence intervals
+# Reference: Opinion.md requirements for statistical confidence estimation
+
 # 必要ライブラリの読み込み
 library(jsonlite)
 library(dplyr)

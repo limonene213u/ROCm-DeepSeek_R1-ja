@@ -4,6 +4,13 @@ LoRA効率性包括検証ベンチマーク
 
 論文記載値「200x少パラメータ・2x VRAM削減」の実証実験
 DeepSeek R1での日本語LoRA fine-tuning効率性測定
+
+# TODO: Implement baseline full fine-tuning comparison
+# Copilot: Current implementation measures LoRA only
+# Need to add full fine-tuning baseline to validate paper claims:
+# - "200x fewer parameters" vs full fine-tuning
+# - "2x VRAM reduction" vs full fine-tuning
+# Add comparison with 6.7B→1B model parameter counts as mentioned in Draft-en.md
 """
 
 import torch
